@@ -1,5 +1,7 @@
 ShellJS Node CLI Extension
+
 Copyright (c) 2014 Nicholas C. Zakas. All rights reserved.
+Copyright (c) 2017 Université de Sherbrooke. All rights reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
