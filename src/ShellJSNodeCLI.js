@@ -90,7 +90,7 @@ const getLocalPath = (name, root = '') => {
  * @class
  */
 export default class ShellJSNodeCLI {
-  static shellJSExec = shell.exec
+  static shell = shell
 
   /**
    * Gets the executable path for the Node CLI with the given name.
@@ -145,7 +145,7 @@ export default class ShellJSNodeCLI {
 
     if (cliCommand) {
       const args = [cliCommand, ...commandOptions].join(' ')
-      return ShellJSNodeCLI.shellJSExec.call(null, args, options, callback)
+      return ShellJSNodeCLI.shell.exec.call(null, args, options, callback)
     } else {
       throw new Error(`Couldn't find the CLI ${cliName}.`)
     }

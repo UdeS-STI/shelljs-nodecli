@@ -40,13 +40,13 @@ describe('nodeCLI', () => {
   })
 
   describe('exec', () => {
-    ShellJSNodeCLI.shellJSExec = sinon.spy()
+    ShellJSNodeCLI.shell.exec = sinon.spy()
 
     it('should call ShellJS exec() with string arguments concatenated with spaces when called with multiple string arguments', () => {
       const command = 'npm a b c'
 
       ShellJSNodeCLI.exec(command)
-      expect(ShellJSNodeCLI.shellJSExec).to.be.calledWith(command)
+      expect(ShellJSNodeCLI.shell.exec).to.be.calledWith(command)
     })
 
     it('should call ShellJS exec() with all arguments when called with options and callback', () => {
@@ -55,7 +55,7 @@ describe('nodeCLI', () => {
       const callback = () => {}
 
       ShellJSNodeCLI.exec(command, options, callback)
-      expect(ShellJSNodeCLI.shellJSExec).to.be.calledWith(command, options, callback)
+      expect(ShellJSNodeCLI.shell.exec).to.be.calledWith(command, options, callback)
     })
 
     it("should throw an error when the Node module can't be found", () => {
