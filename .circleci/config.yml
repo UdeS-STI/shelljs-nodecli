@@ -1,0 +1,30 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/shelljs-nodecli
+    docker:
+      - image: circleci/node:6.10
+    steps:
+      - checkout
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+      - run:
+          name: install-dependencies
+          command: npm install
+      - save_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+          paths:
+            - ./node_modules
+            - ~/.cache/npm
+      - run:
+          name: build
+          command: npm run build
+      - run:
+          name: linter
+          command: npm run lint
+      - run:
+          name: security-audit
+          command: npm run audit
+      - run:
+          name: unit-tests
+          command: npm run test
