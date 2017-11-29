@@ -99,4 +99,3 @@ ShellJSNodeCLI.exec('some_long_running_process', (code, output) => {
 ## License
 
 MIT License
-
