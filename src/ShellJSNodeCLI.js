@@ -54,7 +54,7 @@ const existPackagePath = (packagePath) => {
 /**
  * Return the local exec path.
  * @param {String} name The name of the Node module to retrieve the package for.
- * @param {String} bin
+ * @param {String} bin Bin name.
  * @param {String} [root=''] The root directory to start looking in.
  * @return {String} Local exec path.
  */
@@ -104,10 +104,8 @@ export default class ShellJSNodeCLI {
      * Search the local node_modules where the CLI is currently executed.
      */
     const localExecPath = getLocalPath(name, root)
-    console.log('localExecPath', name, root, localExecPath)
 
     if (localExecPath) {
-      console.log('Yay', name, root, )
       return localExecPath
     }
 
@@ -115,7 +113,6 @@ export default class ShellJSNodeCLI {
      * Search the global node_modules of the current user.
      */
     const isGlobalPackage = shell.which(name)
-    console.log('isGlobalPackage', name, root, isGlobalPackage)
 
     if (isGlobalPackage) {
       return name
@@ -138,21 +135,16 @@ export default class ShellJSNodeCLI {
    * Executes the given node CLI command with the specified options.
    * @static
    * @param {String} command The Node CLI command to execute.
-   * @param {Object} [options] Same options as exec().
+   * @param {Object} [options] Same options as shell.exec().
    * @param {Function} [callback] The function to call when executing async.
    * @returns {Object} An object containing `output` and `code` for the exit code.
    */
   static exec = (command, options, callback) => {
-    console.log('a')
     const [cliName, ...commandOptions] = command.split(' ')
-    console.log('b', cliName, commandOptions)
     const cliCommand = ShellJSNodeCLI.getCommand(cliName)
-    console.log('c', cliCommand)
 
     if (cliCommand) {
-      console.log('d', commandOptions.join(' '))
       const args = [cliCommand, ...commandOptions].join(' ')
-      console.log('e', args)
       return ShellJSNodeCLI.shellJSExec.call(null, args, options, callback)
     } else {
       throw new Error(`Couldn't find the CLI ${cliName}.`)
