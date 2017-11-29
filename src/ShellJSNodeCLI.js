@@ -9,7 +9,7 @@ import path from 'path'
  * @return {String} The path to the binary.
  * @private
  */
-function getBin (pkg, name) {
+function getBinaryFromPackage (pkg, name) {
   if (pkg) {
     if (typeof pkg.bin === 'string' && pkg.name === name) {
       return pkg.bin
@@ -47,7 +47,7 @@ const getPackagePath = (name, root = '') => {
  * @param {String} packagePath Package path.
  * @return {Boolean} True if the package file exists.
  */
-const existPackagePath = (packagePath) => {
+const isLocalPackage = (packagePath) => {
   return shell.test('-f', packagePath)
 }
 
@@ -69,13 +69,12 @@ const getLocalExecPath = (name, bin, root = '') => {
  * @param {String} [root=''] The root directory to start looking in.
  * @return {String} Local path.
  */
-const getLocalPath = (name, root = '') => {
+const getPackageLocalPath = (name, root = '') => {
   const localPackagePath = getPackagePath(name, root)
-  const isLocalPackage = existPackagePath(localPackagePath)
 
-  if (isLocalPackage) {
+  if (isLocalPackage(localPackagePath)) {
     const localPackage = getPackage(localPackagePath)
-    const bin = getBin(localPackage, name)
+    const bin = getBinaryFromPackage(localPackage, name)
 
     if (bin) {
       return getLocalExecPath(name, bin, root)
@@ -103,7 +102,7 @@ export default class ShellJSNodeCLI {
     /**
      * Search the local node_modules where the CLI is currently executed.
      */
-    const localExecPath = getLocalPath(name, root)
+    const localExecPath = getPackageLocalPath(name, root)
 
     if (localExecPath) {
       return localExecPath
@@ -122,7 +121,7 @@ export default class ShellJSNodeCLI {
      * Search the local node_modules of the global CLI.
      */
     const globalCLIPath = path.join(__dirname, '../../..')
-    const globalLocalExecPath = getLocalPath(name, globalCLIPath)
+    const globalLocalExecPath = getPackageLocalPath(name, globalCLIPath)
 
     if (globalLocalExecPath) {
       return globalLocalExecPath
@@ -137,7 +136,7 @@ export default class ShellJSNodeCLI {
    * @param {String} command The Node CLI command to execute.
    * @param {Object} [options] Same options as shell.exec().
    * @param {Function} [callback] The function to call when executing async.
-   * @returns {Object} An object containing `output` and `code` for the exit code.
+   * @return {Object} An object containing `output` and `code` for the exit code.
    */
   static exec = (command, options, callback) => {
     const [cliName, ...commandOptions] = command.split(' ')
@@ -146,8 +145,8 @@ export default class ShellJSNodeCLI {
     if (cliCommand) {
       const args = [cliCommand, ...commandOptions].join(' ')
       return ShellJSNodeCLI.shell.exec.call(null, args, options, callback)
-    } else {
-      throw new Error(`Couldn't find the CLI ${cliName}.`)
     }
+
+    throw new Error(`Couldn't find the CLI ${cliName}.`)
   }
 }
