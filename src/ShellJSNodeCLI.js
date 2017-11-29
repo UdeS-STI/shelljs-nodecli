@@ -44,27 +44,45 @@ const getPackagePath = (name, root = '') => {
 
 /**
  * Check if the package exists.
- * @param {String} packagePath
+ * @param {String} packagePath Package path.
  * @return {Boolean} True if the package file exists.
  */
 const existPackagePath = (packagePath) => {
   return shell.test('-f', packagePath)
 }
 
+/**
+ * Return the local exec path.
+ * @param {String} name The name of the Node module to retrieve the package for.
+ * @param {String} bin
+ * @param {String} [root=''] The root directory to start looking in.
+ * @return {String} Local exec path.
+ */
+const getLocalExecPath = (name, bin, root = '') => {
+  const localPath = path.join(root, 'node_modules', name, bin).replace(/\\/g, '/')
+  return `node ${localPath}`
+}
+
+/**
+ * Get the local path of the package.
+ * @param {String} name The name of the Node module to retrieve the package for.
+ * @param {String} [root=''] The root directory to start looking in.
+ * @return {String} Local path.
+ */
 const getLocalPath = (name, root = '') => {
   const localPackagePath = getPackagePath(name, root)
   const isLocalPackage = existPackagePath(localPackagePath)
 
   if (isLocalPackage) {
     const localPackage = getPackage(localPackagePath)
-    const bin = getBin(localPackage)
+    const bin = getBin(localPackage, name)
 
     if (bin) {
-      return getLocalExecPath(name, root, bin)
+      return getLocalExecPath(name, bin, root)
     }
   }
 
-  return null
+  return ''
 }
 
 /**
@@ -72,19 +90,24 @@ const getLocalPath = (name, root = '') => {
  * @class
  */
 export default class ShellJSNodeCLI {
+  static shellJSExec = shell.exec
+
   /**
    * Gets the executable path for the Node CLI with the given name.
+   * @static
    * @param {String} name The Node CLI executable name.
    * @param {String} [root=''] The root directory to start looking in.
    * @return {String} The command that will execute the CLI.
    */
-  getCommand = (name, root = '') => {
+  static getCommand = (name, root = '') => {
     /**
      * Search the local node_modules where the CLI is currently executed.
      */
     const localExecPath = getLocalPath(name, root)
+    console.log('localExecPath', name, root, localExecPath)
 
     if (localExecPath) {
+      console.log('Yay', name, root, )
       return localExecPath
     }
 
@@ -92,6 +115,7 @@ export default class ShellJSNodeCLI {
      * Search the global node_modules of the current user.
      */
     const isGlobalPackage = shell.which(name)
+    console.log('isGlobalPackage', name, root, isGlobalPackage)
 
     if (isGlobalPackage) {
       return name
@@ -107,6 +131,31 @@ export default class ShellJSNodeCLI {
       return globalLocalExecPath
     }
 
-    return null
+    return ''
+  }
+
+  /**
+   * Executes the given node CLI command with the specified options.
+   * @static
+   * @param {String} command The Node CLI command to execute.
+   * @param {Object} [options] Same options as exec().
+   * @param {Function} [callback] The function to call when executing async.
+   * @returns {Object} An object containing `output` and `code` for the exit code.
+   */
+  static exec = (command, options, callback) => {
+    console.log('a')
+    const [cliName, ...commandOptions] = command.split(' ')
+    console.log('b', cliName, commandOptions)
+    const cliCommand = ShellJSNodeCLI.getCommand(cliName)
+    console.log('c', cliCommand)
+
+    if (cliCommand) {
+      console.log('d', commandOptions.join(' '))
+      const args = [cliCommand, ...commandOptions].join(' ')
+      console.log('e', args)
+      return ShellJSNodeCLI.shellJSExec.call(null, args, options, callback)
+    } else {
+      throw new Error(`Couldn't find the CLI ${cliName}.`)
+    }
   }
 }
