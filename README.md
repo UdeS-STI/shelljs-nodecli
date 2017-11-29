@@ -57,7 +57,7 @@ You can pass in as many string arguments as you'd like, and they will
 automatically be concatenated together with a space in between, such as:
 
 ```javascript
-import ShellJSNodeCLI from 'shelljs-nodecli'
+import ShellJSNodeCLI from '@udes/shelljs-nodecli'
 
 ShellJSNodeCLI.exec("eslint -f compact myfile.js");
 ```
@@ -76,7 +76,7 @@ ShellJS `exec()` method, meaning you can use the same options and
 callback arguments, such as:
 
 ```javascript
-import ShellJSNodeCLI from 'shelljs-nodecli'
+import ShellJSNodeCLI from '@udes/shelljs-nodecli'
 
 const version = ShellJSNodeCLI.exec('eslint -v', {silent:true}).output;
 
