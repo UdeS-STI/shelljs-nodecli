@@ -1,7 +1,7 @@
 {
   "name": "@udes/shelljs-nodecli",
   "author": "Université de Sherbrooke & Nicholas C. Zakas",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "licence": "MIT",
   "description": "ShellJS Node CLI Extension",
   "main": "./dist/ShellJSNodeCLI.js",
