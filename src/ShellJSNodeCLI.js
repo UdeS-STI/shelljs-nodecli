@@ -1,87 +1,13 @@
-import fs from 'fs'
 import shell from 'shelljs'
 import path from 'path'
 
 /**
- * Retrieves a binary from the given package.
- * @param {Object} pkg The node package.json file content.
- * @param {String} name The binary name to look for.
- * @return {String} The path to the binary.
- * @private
+ * Check if the bin file exists.
+ * @param {String} binPath Bin path.
+ * @return {Boolean} True if the bin file exists.
  */
-function getBinaryFromPackage (pkg, name) {
-  if (pkg) {
-    if (typeof pkg.bin === 'string' && pkg.name === name) {
-      return pkg.bin
-    } else if (typeof pkg.bin === 'object') {
-      return pkg.bin[name]
-    }
-  }
-
-  return null
-}
-
-/**
- * Retrieves package information for the given Node module.
- * @param {String} packagePath The name of the Node module to retrieve the package for.
- * @return {Object} The content of the package.json file for the Node module .
- * @private
- */
-const getPackage = (packagePath) => {
-  const content = fs.readFileSync(packagePath, 'utf8')
-  return JSON.parse(content)
-}
-
-/**
- * Return the package path.
- * @param {String} name The name of the Node module to retrieve the package for.
- * @param {String} [root=''] The root directory to start looking in.
- * @return {String} Package path.
- */
-const getPackagePath = (name, root = '') => {
-  return path.join(root, 'node_modules', name, 'package.json')
-}
-
-/**
- * Check if the package exists.
- * @param {String} packagePath Package path.
- * @return {Boolean} True if the package file exists.
- */
-const isLocalPackage = (packagePath) => {
-  return shell.test('-f', packagePath)
-}
-
-/**
- * Return the local exec path.
- * @param {String} name The name of the Node module to retrieve the package for.
- * @param {String} bin Bin name.
- * @param {String} [root=''] The root directory to start looking in.
- * @return {String} Local exec path.
- */
-const getLocalExecPath = (name, bin, root = '') => {
-  const localPath = path.join(root, 'node_modules', name, bin).replace(/\\/g, '/')
-  return `node ${localPath}`
-}
-
-/**
- * Get the local path of the package.
- * @param {String} name The name of the Node module to retrieve the package for.
- * @param {String} [root=''] The root directory to start looking in.
- * @return {String} Local path.
- */
-const getPackageLocalPath = (name, root = '') => {
-  const localPackagePath = getPackagePath(name, root)
-
-  if (isLocalPackage(localPackagePath)) {
-    const localPackage = getPackage(localPackagePath)
-    const bin = getBinaryFromPackage(localPackage, name)
-
-    if (bin) {
-      return getLocalExecPath(name, bin, root)
-    }
-  }
-
-  return ''
+const binExist = (binPath) => {
+  return shell.test('-f', binPath)
 }
 
 /**
@@ -89,6 +15,8 @@ const getPackageLocalPath = (name, root = '') => {
  * @class
  */
 export default class ShellJSNodeCLI {
+  static binPath = 'node_modules/.bin'
+  static globalCLIPath = path.join(__dirname, '../../../..')
   static shell = shell
 
   /**
@@ -102,9 +30,9 @@ export default class ShellJSNodeCLI {
     /**
      * Search the local node_modules where the CLI is currently executed.
      */
-    const localExecPath = getPackageLocalPath(name, root)
+    const localExecPath = path.join(root, ShellJSNodeCLI.binPath, name)
 
-    if (localExecPath) {
+    if (binExist(localExecPath)) {
       return localExecPath
     }
 
@@ -118,13 +46,12 @@ export default class ShellJSNodeCLI {
     }
 
     /**
-     * Search the local node_modules of the global CLI.
+     * Search the local node_modules/.bin of the global CLI.
      */
-    const globalCLIPath = path.join(__dirname, '../../..')
-    const globalLocalExecPath = getPackageLocalPath(name, globalCLIPath)
+    const globalCLIPath = path.join(ShellJSNodeCLI.globalCLIPath, ShellJSNodeCLI.binPath, name)
 
-    if (globalLocalExecPath) {
-      return globalLocalExecPath
+    if (binExist(globalCLIPath)) {
+      return globalCLIPath
     }
 
     return ''

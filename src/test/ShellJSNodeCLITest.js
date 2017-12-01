@@ -11,21 +11,10 @@ chai.use(sinonChai)
 
 describe('nodeCLI', () => {
   describe('getCommand', () => {
-    it('should return the path to a CLI when there is a local module installed with a bin object', () => {
+    it('should return the path to a CLI when there is a local module installed ', () => {
       const result = ShellJSNodeCLI.getCommand('a', 'src/test')
-      const expectedResult = 'node src/test/node_modules/a/a.js'
+      const expectedResult = 'src/test/node_modules/.bin/a'
       expect(result).to.be.equal(expectedResult)
-    })
-
-    it('should return the path to a CLI when there is a local module installed with a bin string', () => {
-      const result = ShellJSNodeCLI.getCommand('b', 'src/test')
-      const expectedResult = 'node src/test/node_modules/b/b.js'
-      expect(result).to.be.equal(expectedResult)
-    })
-
-    it('should return an empty string when there is a local module, but it does not have a bin', () => {
-      const result = ShellJSNodeCLI.getCommand('c', 'src/test')
-      expect(result).to.be.equal('')
     })
 
     it('should return an empty string when there is no local module or global utility installed', () => {
